@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
         let query;
         if (filter === "popular") {
             query = `
-                SELECT p.idPost, p.Contenuto, p.Immagine, p.DataC, u.Username,
+                SELECT p.idPost, p.Contenuto, p.DataC, u.Username,
                        COUNT(l.idLike) AS numLike
                 FROM Post p
                 JOIN Utente u ON p.FK_Utente = u.idUtente
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
             `;
         } else {
             query = `
-                SELECT p.idPost, p.Contenuto, p.Immagine, p.DataC, u.Username
+                SELECT p.idPost, p.Contenuto, p.DataC, u.Username
                 FROM Post p
                 JOIN Utente u ON p.FK_Utente = u.idUtente
                 ORDER BY p.DataC DESC
@@ -45,7 +45,7 @@ router.get("/for-me", requireAuth, async (req, res) => {
     try {
         const [posts] = await connection.query(
             `
-            SELECT DISTINCT p.idPost, p.Contenuto, p.Immagine, p.DataC, u.Username
+            SELECT DISTINCT p.idPost, p.Contenuto, p.DataC, u.Username
             FROM Post p
             JOIN Utente u ON p.FK_Utente = u.idUtente
             LEFT JOIN Post_Tag pt ON pt.FK_Post = p.idPost
@@ -72,7 +72,7 @@ router.get("/:id", async (req, res) => {
     try {
         const [postRows] = await connection.query(
             `
-            SELECT p.idPost, p.Contenuto, p.Immagine, p.DataC, u.Username, p.FK_Utente
+            SELECT p.idPost, p.Contenuto, p.DataC, u.Username, p.FK_Utente
             FROM Post p
             JOIN Utente u ON p.FK_Utente = u.idUtente
             WHERE p.idPost = ?
@@ -157,7 +157,7 @@ router.post("/", requireAuth, async (req, res) => {
     }
 });
 
-// DELETE /posts/:id  (solo chi lo ha creato)
+// eliminare il post /posts/:id  (solo chi lo ha creato)
 router.delete("/:id", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;
@@ -182,7 +182,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     }
 });
 
-// POST /posts/:id/like  (richiede login)
+// /posts/:id/like  (richiede login)
 router.post("/:id/like", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;
@@ -194,14 +194,14 @@ router.post("/:id/like", requireAuth, async (req, res) => {
         );
         res.status(201).send("Like aggiunto");
     } catch (error) {
-        if (error.code === "ER_DUP_ENTRY") {
+        if (error) {
             return res.status(409).send("Hai già messo like a questo post");
         }
         res.status(500).send({ message: error.message });
     }
 });
 
-// DELETE /posts/:id/like  (rimuove il proprio like)
+// /posts/:id/like  (rimuove il proprio like)
 router.delete("/:id/like", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;
@@ -217,7 +217,7 @@ router.delete("/:id/like", requireAuth, async (req, res) => {
     }
 });
 
-// GET /posts/:id/comments
+// /posts/:id/comments
 router.get("/:id/comments", async (req, res) => {
     const idPost = req.params.id;
 
@@ -236,7 +236,7 @@ router.get("/:id/comments", async (req, res) => {
     }
 });
 
-// POST /posts/:id/comments  (richiede login)
+// /posts/:id/comments  (richiede login)
 router.post("/:id/comments", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;

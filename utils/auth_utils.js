@@ -35,3 +35,30 @@ export async function requireAuth(req, res, next) {
         res.status(500).send("Errore durante l'autenticazione");
     }
 }
+
+export async function optionalAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Basic ")) {
+        req.user = null;
+        return next();
+    }
+
+    const base64Credentials = authHeader.split(" ")[1];
+    const credentials = Buffer.from(base64Credentials, "base64").toString("utf-8");
+    const [Username, Password] = credentials.split(":");
+
+    try {
+        const utente = await getUserByUsername(Username);
+        if (!utente) {
+            req.user = null;
+            return next();
+        }
+        const match = await bcrypt.compare(Password, utente.Pass);
+        req.user = match ? utente : null;
+        next();
+    } catch (error) {
+        req.user = null;
+        next();
+    }
+}

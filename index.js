@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import settingsRouter from "./routes/settings_routes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/posts", postRouter);
 app.use("/user", userRouter);
 app.use("/auth", securityRouter);
+app.use("/settings", settingsRouter);
 
 app.get("/", (req, res) => {
     res.send("Meow");
