@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// GET /posts/for-me  (richiede login: tag seguiti + utenti seguiti)
+// tag seguiti + utenti seguiti, richiede login
 router.get("/for-me", requireAuth, async (req, res) => {
     const idUtente = req.user.idUtente;
 
@@ -65,7 +65,7 @@ router.get("/for-me", requireAuth, async (req, res) => {
     }
 });
 
-// GET /posts/:id  (dettaglio singolo post, con tag e conteggio like)
+// dettaglio singolo post, con tag e conteggio like
 router.get("/:id", async (req, res) => {
     const idPost = req.params.id;
 
@@ -102,7 +102,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// POST /posts  (crea post, richiede login)
+// crea post, richiede login
 router.post("/", requireAuth, async (req, res) => {
     const { contenuto, tags } = req.body;
     const idUtente = req.user.idUtente;
@@ -179,7 +179,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
         res.status(204).send();
     } catch (error) {
         res.status(500).send({ message: error.message });
-    }
+    }n
 });
 
 // /posts/:id/like  (richiede login)
@@ -259,7 +259,7 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
 
 // rispondi a un commento
 router.post("/comments/:idComment/replies", requireAuth, async (req, res) => {
-    const idComment = req.params.idComment;
+    const idComment = req.params.idCommento;
     const idUtente = req.user.idUtente;
     const { contenuto } = req.body;
 
@@ -288,7 +288,7 @@ router.post("/comments/:idComment/replies", requireAuth, async (req, res) => {
 
 // risposte a un commento
 router.get("/comments/:idComment/replies", async (req, res) => {
-    const idComment = req.params.idComment;
+    const idComment = req.params.idCommento;
 
     try {
         const [replies] = await connection.query(
@@ -305,12 +305,12 @@ router.get("/comments/:idComment/replies", async (req, res) => {
     }
 });
 
-// like a un commento
+// like ad un commento
 router.post("/comments/:idComment/like", requireAuth, async (req, res) => {
     try {
         await connection.query(
             `INSERT INTO Likes (FK_Utente, FK_Commento) VALUES (?, ?)`,
-            [req.user.idUtente, req.params.idComment]
+            [req.user.idUtente, req.params.idCommento]
         );
         res.status(201).send("Like aggiunto");
     } catch (error) {
@@ -321,12 +321,12 @@ router.post("/comments/:idComment/like", requireAuth, async (req, res) => {
     }
 });
 
-// DELETE /posts/comments/:idComment/like
+// togliere like
 router.delete("/comments/:idComment/like", requireAuth, async (req, res) => {
     try {
         await connection.query(
             `DELETE FROM Likes WHERE FK_Commento = ? AND FK_Utente = ?`,
-            [req.params.idComment, req.user.idUtente]
+            [req.params.idCommento, req.user.idUtente]
         );
         res.status(204).send();
     } catch (error) {
