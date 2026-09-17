@@ -4,6 +4,7 @@ import multer from "multer";
 import { connection } from "../database.js";
 import { getUserByUsername } from "../utils/user_utils.js";
 import { isValidPassword } from "../utils/validation_utils.js";
+import {requireAuth} from "../utils/auth_utils.js";
 
 const router = express.Router();
 const saltRounds = 10;

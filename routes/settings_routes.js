@@ -198,7 +198,7 @@ router.get("/posts", requireAuth, async (req, res) => {
     }
 });
 
-// GET /settings/interactions - post con cui abbiamo interagito (like + commenti)
+// post con cui abbiamo interagito (like + commenti)
 router.get("/interactions", requireAuth, async (req, res) => {
     const idUtente = req.user.idUtente;
     try {
@@ -219,27 +219,7 @@ router.get("/interactions", requireAuth, async (req, res) => {
     }
 });
 
-// GET /settings/conversations - le proprie conversazioni private
-router.get("/conversations", requireAuth, async (req, res) => {
-    const idUtente = req.user.idUtente;
-    try {
-        const [conversazioni] = await connection.query(
-            `
-            SELECT c.idConvo,
-                   CASE WHEN c.FK_U1 = ? THEN u2.Username ELSE u1.Username END AS conInterlocutore
-            FROM Conversazione c
-            JOIN Utente u1 ON u1.idUtente = c.FK_U1
-            JOIN Utente u2 ON u2.idUtente = c.FK_U2
-            WHERE c.FK_U1 = ? OR c.FK_U2 = ?
-            `,
-            [idUtente, idUtente, idUtente]
-        );
-        res.status(200).send(conversazioni);
-    } catch (error) {
-        res.status(500).send({ message: error.message });
-    }
-});
-
+// x la foto profilo
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
