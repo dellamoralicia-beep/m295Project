@@ -236,7 +236,7 @@ router.get("/:id/comments", async (req, res) => {
     }
 });
 
-// /posts/:id/comments  (richiede login)
+// commentare /posts/:id/comments  (richiede login)
 router.post("/:id/comments", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;
@@ -252,6 +252,83 @@ router.post("/:id/comments", requireAuth, async (req, res) => {
             [idUtente, idPost, contenuto]
         );
         res.status(201).send({ idCommento: result.insertId });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// rispondi a un commento
+router.post("/comments/:idComment/replies", requireAuth, async (req, res) => {
+    const idComment = req.params.idComment;
+    const idUtente = req.user.idUtente;
+    const { contenuto } = req.body;
+
+    if (!contenuto) {
+        return res.status(400).send("Il contenuto del commento è obbligatorio");
+    }
+
+    try {
+        const [parentRows] = await connection.query(
+            `SELECT idCommento FROM Commento WHERE idCommento = ?`,
+            [idComment]
+        );
+        if (parentRows.length === 0) {
+            return res.status(404).send("Commento non trovato");
+        }
+
+        const [result] = await connection.query(
+            `INSERT INTO Commento (FK_Utente, FK_Commento, Contenuto) VALUES (?, ?, ?)`,
+            [idUtente, idComment, contenuto]
+        );
+        res.status(201).send({ idCommento: result.insertId });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// risposte a un commento
+router.get("/comments/:idComment/replies", async (req, res) => {
+    const idComment = req.params.idComment;
+
+    try {
+        const [replies] = await connection.query(
+            `SELECT c.idCommento, c.Contenuto, c.DataC, u.Username
+             FROM Commento c
+             JOIN Utente u ON c.FK_Utente = u.idUtente
+             WHERE c.FK_Commento = ?
+             ORDER BY c.DataC ASC`,
+            [idComment]
+        );
+        res.status(200).send(replies);
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// like a un commento
+router.post("/comments/:idComment/like", requireAuth, async (req, res) => {
+    try {
+        await connection.query(
+            `INSERT INTO Likes (FK_Utente, FK_Commento) VALUES (?, ?)`,
+            [req.user.idUtente, req.params.idComment]
+        );
+        res.status(201).send("Like aggiunto");
+    } catch (error) {
+        if (error.code === "ER_DUP_ENTRY") {
+            return res.status(409).send("Hai già messo like a questo commento");
+        }
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// DELETE /posts/comments/:idComment/like
+router.delete("/comments/:idComment/like", requireAuth, async (req, res) => {
+    try {
+        await connection.query(
+            `DELETE FROM Likes WHERE FK_Commento = ? AND FK_Utente = ?`,
+            [req.params.idComment, req.user.idUtente]
+        );
+        res.status(204).send();
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
