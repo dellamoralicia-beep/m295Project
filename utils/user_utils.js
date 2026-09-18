@@ -34,9 +34,9 @@ export async function updateUserFields(idUtente, fields) {
         [...values, idUtente]
     );
 }
-//connection è un insieme di connessioni pronte all'uso, quando si fa connection.query... il pool prende connessione qualsiasi disponibile
+//connection è un insieme di connessioni pronte all'uso, quando si fa connection.query il pool prende connessione qualsiasi disponibile
 //per una transazione(begin/commit/rollback) bisogna avere tutte le query sulla stessa connessione
-//non c'è on delete cascade
+//non c'è on delete cascade, si fa manualmente per evitare cose che sono forse eliminate a metà
 export async function deleteUserAccount(idUtente) {
     const dbConn = await connection.getConnection();
     try {

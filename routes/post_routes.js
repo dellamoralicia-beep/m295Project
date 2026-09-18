@@ -116,7 +116,7 @@ router.post("/", requireAuth, async (req, res) => {
 
     const dbConn = await connection.getConnection();
     try {
-        await dbConn.beginTransaction();
+        await dbConn.beginTransaction(); //indica inizio blocco di operazioni
 
         const [result] = await dbConn.query(
             `INSERT INTO Post (FK_Utente, Contenuto) VALUES (?, ?)`,
@@ -147,10 +147,10 @@ router.post("/", requireAuth, async (req, res) => {
             );
         }
 
-        await dbConn.commit();
+        await dbConn.commit(); //conferma modifiche
         res.status(201).send({ idPost });
     } catch (error) {
-        await dbConn.rollback();
+        await dbConn.rollback(); //qualcosa andato storto, annullo tutto
         res.status(500).send({ message: error.message });
     } finally {
         dbConn.release();
