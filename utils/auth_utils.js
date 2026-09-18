@@ -1,6 +1,13 @@
 import bcrypt from "bcrypt";
 import { getUserByUsername } from "./user_utils.js";
 
+//con HTTP Basic Auth ogni richiesta si autentica da sola con username e password
+//header authorization fatto/codificato con base64 nn x ragioni di sicurezza ma per caratteri forse in
+//password o username non-HTTP-compatible
+//requireAuth legge header authorization, lo decodifica e verifica le credenziali con il DB
+
+
+//middleware per autenticazione
 export async function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
 
@@ -35,7 +42,7 @@ export async function requireAuth(req, res, next) {
         res.status(500).send("Errore durante l'autenticazione");
     }
 }
-
+//middleware per mostrare cose da anche non loggato
 export async function optionalAuth(req, res, next) {
     const authHeader = req.headers.authorization;
 
