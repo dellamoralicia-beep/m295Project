@@ -15,9 +15,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/posts", postRouter);
 app.use("/user", userRouter);
 app.use("/auth", securityRouter);
+app.use("/posts", postRouter);
 app.use("/settings", settingsRouter);
 app.use("/messages", messagesRouter);
 
