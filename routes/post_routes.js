@@ -182,7 +182,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     }n
 });
 
-// /posts/:id/like  (richiede login)
+// richiede loginA
 router.post("/:id/like", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;
@@ -201,7 +201,7 @@ router.post("/:id/like", requireAuth, async (req, res) => {
     }
 });
 
-// /posts/:id/like  (rimuove il proprio like)
+// rimuove il proprio like
 router.delete("/:id/like", requireAuth, async (req, res) => {
     const idPost = req.params.id;
     const idUtente = req.user.idUtente;
